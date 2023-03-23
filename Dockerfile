@@ -1,8 +1,6 @@
 # Node builder image
 FROM uselagoon/node-16:latest as dev
 
-COPY . /app/
-
 # Copy only what we need into the image
 COPY ./src/ /app/src
 COPY server.js .

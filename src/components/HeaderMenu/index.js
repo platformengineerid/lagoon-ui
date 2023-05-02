@@ -1,31 +1,35 @@
 import React from 'react';
+
 import getConfig from 'next/config';
+import Link from 'next/link';
+
+import { DropdownButton, DropdownMenu, StyledDropdown } from './StyledHeaderMenu';
+
 const { publicRuntimeConfig } = getConfig();
-import {StyledDropdown, DropdownMenu, DropdownButton} from "./StyledHeaderMenu";
 
-const useOutsideClick = (callback) => {
-    const ref = React.useRef();
-  
-    React.useEffect(() => {
-      const handleClick = (event) => {
-        if (ref.current && !ref.current.contains(event.target)) {
-          setTimeout(() => {
-            callback();
-          });
-        }
-      };
-  
-      document.addEventListener('click', handleClick, true);
+const useOutsideClick = callback => {
+  const ref = React.useRef();
 
-      return () => {
-        document.removeEventListener('click', handleClick, true);
-      };
-    }, [ref]);
-  
-    return ref;
+  React.useEffect(() => {
+    const handleClick = event => {
+      if (ref.current && !ref.current.contains(event.target)) {
+        setTimeout(() => {
+          callback();
+        });
+      }
+    };
+
+    document.addEventListener('click', handleClick, true);
+
+    return () => {
+      document.removeEventListener('click', handleClick, true);
+    };
+  }, [ref]);
+
+  return ref;
 };
 
-const HeaderMenu = ({auth}) => {
+const HeaderMenu = ({ auth }) => {
   const [open, setOpen] = React.useState(false);
 
   const handleClickOutside = () => {
@@ -58,23 +62,25 @@ const HeaderMenu = ({auth}) => {
           </DropdownButton>
         }
         menu={[
-          <a key="settings" className="settings" href="/settings">
-            Settings
-          </a>,
-          <hr key="line"/>,
-          <a key="projects" className="menuitem" href="/projects">
-            Your projects
-          </a>,
-          publicRuntimeConfig.LAGOON_UI_YOUR_ACCOUNT_DISABLED == null && (
-            <a
-              key="account"
-              className="menuitem"
-              href={`${publicRuntimeConfig.KEYCLOAK_API}/realms/lagoon/account`}
-            >
-              Your account
+          <Link key="settings" href="/settings" prefetch>
+            <a key="settings" className="settings">
+              Settings
             </a>
+          </Link>,
+          <hr key="line" />,
+          <Link key="projects" href="/projects" prefetch>
+            <a key="projects" className="menuitem">
+              Your projects
+            </a>
+          </Link>,
+          publicRuntimeConfig.LAGOON_UI_YOUR_ACCOUNT_DISABLED == null && (
+            <Link href={`${publicRuntimeConfig.KEYCLOAK_API}/realms/lagoon/account`} passHref>
+              <a key="account" className="menuitem">
+                Your account
+              </a>
+            </Link>
           ),
-          <hr key="lastline"/>,
+          <hr key="lastline" />,
           <a key="logout" className="logout" onClick={auth.logout}>
             Sign out
           </a>,
@@ -85,20 +91,22 @@ const HeaderMenu = ({auth}) => {
 };
 
 const Dropdown = ({ open, trigger, menu }) => {
-    return (
+  return (
     <>
       <StyledDropdown>
         {trigger}
         {open ? (
           <DropdownMenu>
             {menu.map((menuItem, index) => (
-              <li key={index} className="menu-item">{menuItem}</li>
+              <li key={index} className="menu-item">
+                {menuItem}
+              </li>
             ))}
           </DropdownMenu>
         ) : null}
       </StyledDropdown>
     </>
-    );
-  };
+  );
+};
 
 export default HeaderMenu;

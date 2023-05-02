@@ -1,5 +1,6 @@
-import React, { FC } from "react";
-import { StyledBox } from "./StyledBox";
+import React, { FC } from 'react';
+
+import { StyledBox } from './StyledBox';
 
 /**
  * Displays a box, given an optional class name.
@@ -7,10 +8,10 @@ import { StyledBox } from "./StyledBox";
 
 interface BoxProps {
   className?: string;
-  children: JSX.Element[];
+  children: JSX.Element[] | JSX.Element;
   activeBgs?: string[]; // if present, they act as hover backgrounds
 }
-const Box: FC<BoxProps> = ({ className = "", activeBgs, children }) => (
+const Box: FC<BoxProps> = ({ className = '', activeBgs, children }) => (
   <StyledBox className={className} activeBgs={activeBgs}>
     <div className="content">{children}</div>
   </StyledBox>

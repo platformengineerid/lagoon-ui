@@ -1,5 +1,5 @@
-import styled from "styled-components";
-import { color } from "lib/variables";
+import { color } from 'lib/variables';
+import styled from 'styled-components';
 
 export const StyledLogs = styled.div`
   padding: 0 calc(100vw / 16) 48px;
@@ -8,7 +8,7 @@ export const StyledLogs = styled.div`
   .log-viewer {
     background-color: #222222;
     color: #d6d6d6;
-    font-family: "Monaco", monospace;
+    font-family: 'Monaco', monospace;
     font-size: 12px;
     font-weight: 400;
     margin: 0;
@@ -79,11 +79,15 @@ export const StyledLogAccordion = styled.div`
   .accordion-heading {
     display: flex;
     justify-content: space-between;
+
     border: 1px solid ${color.lightestGrey};
-    background: ${color.white};
+    background: ${props =>
+      props.theme.colorScheme === 'dark'
+        ? `${props.theme.backgrounds.primary}`
+        : `${props.theme.backgrounds.secondary}`};
+
     cursor: pointer;
     word-break: break-word;
-
     > div {
       padding: 0 6px;
     }
@@ -91,14 +95,14 @@ export const StyledLogAccordion = styled.div`
 
   //Log accordion content styling
   .accordion-heading {
-    color: black;
-    border-color: lightgrey;
+    color: ${props => props.theme.texts.accordionHeading};
+    border-color: ${props => props.theme.borders.tableRow};
     .log-header {
       ::before {
-        background-image: url("/static/images/logs-closed.png");
+        background-image: url('/static/images/logs-closed.png');
         background-size: 8px 8px;
         background-color: #497ffa;
-        content: " ";
+        content: ' ';
         background-position: center;
         padding: 22px 16px;
         background-repeat: no-repeat;
@@ -106,7 +110,7 @@ export const StyledLogAccordion = styled.div`
       }
       &.visible {
         ::before {
-          background-image: url("/static/images/logs-opened.png");
+          background-image: url('/static/images/logs-opened.png');
         }
       }
       margin: 20px 12px 20px 0;

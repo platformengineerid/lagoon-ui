@@ -1,5 +1,5 @@
-import styled, { css } from "styled-components";
-import { bp, color } from "lib/variables";
+import { bp, color } from 'lib/variables';
+import styled, { css } from 'styled-components';
 
 export const Deployments = styled.div`
   ${css`
@@ -24,7 +24,7 @@ export const Deployments = styled.div`
     .button-sort {
       color: #5f6f7a;
       position: relative;
-      font-family: "source-code-pro", sans-serif;
+      font-family: 'source-code-pro', sans-serif;
       font-size: 13px;
       font-size: 0.8125rem;
       line-height: 1.4;
@@ -36,18 +36,18 @@ export const Deployments = styled.div`
 
       &:after {
         position: absolute;
-        right: -18px;
+        right: 10px;
         top: 0;
         width: 20px;
         height: 20px;
       }
 
       &.ascending:after {
-        content: " \\25B2";
+        content: ' \\25B2';
       }
 
       &.descending:after {
-        content: " \\25BC";
+        content: ' \\25BC';
       }
 
       &:first-child {
@@ -66,6 +66,10 @@ export const Deployments = styled.div`
 `;
 
 export const DeploymentsHeader = styled.div`
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 180px));
+  justify-content: space-between;
+
   @media ${bp.tinyUp} {
     margin: 0 0 14px;
   }
@@ -76,14 +80,12 @@ export const DeploymentsHeader = styled.div`
     margin-top: 40px;
   }
 
-  display: flex;
-  justify-content: space-between;
-
   label,
   button {
     display: none;
     padding-left: 20px;
-    width: 50%;
+    width: 100%;
+
     @media ${bp.tinyUp} {
       display: block;
       text-align: left;
@@ -92,14 +94,16 @@ export const DeploymentsHeader = styled.div`
 `;
 
 export const DeploymentsDataTable = styled.div`
-  background-color: ${color.white};
-  border: 1px solid ${color.lightestGrey};
+  background-color: ${props => props.theme.backgrounds.table};
+
+  border: 1px solid ${props => props.theme.borders.box};
   border-radius: 3px;
+  transition: all 0.3s ease;
   box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.03);
 
   .data-none {
     border: 1px solid ${color.white};
-    border-bottom: 1px solid ${color.lightestGrey};
+    border: 1px solid ${props => props.theme.borders.box};
     border-radius: 3px;
     line-height: 1.5rem;
     padding: 8px 0 7px 0;
@@ -107,27 +111,38 @@ export const DeploymentsDataTable = styled.div`
   }
 
   .data-row {
-    border: 1px solid ${color.white};
-    border-bottom: 1px solid ${color.lightestGrey};
+    border: 1px solid ${props => props.theme.borders.box};
+    border-bottom: 1px solid ${props => props.theme.borders.box};
     border-radius: 0;
     line-height: 1.5rem;
     padding: 8px 0 7px 0;
-
-    @media ${bp.tinyUp} {
-      display: flex;
-      justify-content: space-between;
-    }
+    transition: all 0.3s ease;
+    display: grid;
+    grid-template-columns: repeat(9, minmax(0, 180px));
+    justify-content: space-between;
 
     & > div {
       padding-left: 20px;
+
       @media ${bp.tinyUp} {
-        width: 20%;
+        width: 100%;
       }
-      @media ${bp.xs_smallUp} {
-        width: 24%;
-      }
+      max-width: 180px !important;
     }
 
+    & > div:last-child {
+      padding-left: 0;
+    }
+
+    & > div.project,
+    div.environment,
+    div.cluster {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    &.skeleton {
+      padding: 20px 0;
+    }
     &:hover {
       border: 1px solid ${color.brightBlue};
     }
@@ -148,42 +163,42 @@ export const DeploymentsDataTable = styled.div`
         background-size: 0;
       }
       padding-left: 0;
-      margin-left: 15px;
+      margin-left: 10px;
       background-position: 5px 7px;
       background-repeat: no-repeat;
       background-size: 10px 10px;
       text-indent: 20px;
 
       &.active {
-        background-image: url("/static/images/in-progress.svg");
+        background-image: url('/static/images/in-progress.svg');
       }
 
       &.new {
-        background-image: url("/static/images/in-progress.svg");
+        background-image: url('/static/images/in-progress.svg');
       }
 
       &.pending {
-        background-image: url("/static/images/in-progress.svg");
+        background-image: url('/static/images/in-progress.svg');
       }
 
       &.running {
-        background-image: url("/static/images/in-progress.svg");
+        background-image: url('/static/images/in-progress.svg');
       }
 
       &.failed {
-        background-image: url("/static/images/failed.svg");
+        background-image: url('/static/images/failed.svg');
       }
 
       &.cancelled {
-        background-image: url("/static/images/failed.svg");
+        background-image: url('/static/images/failed.svg');
       }
 
       &.succeeded {
-        background-image: url("/static/images/successful.svg");
+        background-image: url('/static/images/successful.svg');
       }
 
       &.complete {
-        background-image: url("/static/images/successful.svg");
+        background-image: url('/static/images/successful.svg');
       }
 
       span {

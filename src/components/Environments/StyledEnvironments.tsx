@@ -1,5 +1,5 @@
-import styled from "styled-components";
-import { bp, color, fontSize } from "lib/variables";
+import { bp, color, fontSize } from 'lib/variables';
+import styled from 'styled-components';
 
 export const StyledEnvironments = styled.div`
   display: block;
@@ -9,7 +9,7 @@ export const StyledEnvironments = styled.div`
     justify-content: space-between;
 
     &::after {
-      content: "";
+      content: '';
       flex: auto;
     }
   }
@@ -48,6 +48,11 @@ export const StyledEnvironments = styled.div`
         margin-left: 0;
       }
     }
+    & .box .content {
+      label {
+        background: ${props => props.theme.borders.box};
+      }
+    }
   }
 
   .productionLabel {
@@ -60,8 +65,8 @@ export const StyledEnvironments = styled.div`
     transform: translateY(-50%) rotate(-90deg);
 
     &::after {
-      border-top: 1px solid ${color.grey};
-      content: "";
+      border-top: 1px solid ${props => (props.theme.colorScheme === 'dark' ? 'transparent' : `${color.grey}`)};
+      content: '';
       display: block;
       position: relative;
       right: 12px;
@@ -71,7 +76,7 @@ export const StyledEnvironments = styled.div`
     }
 
     span {
-      background-color: ${color.white};
+      background: ${props => props.theme.backgrounds.boxLabel};
       padding: 0 16px;
       z-index: 0;
     }
@@ -87,8 +92,8 @@ export const StyledEnvironments = styled.div`
     transform: translateY(-50%) rotate(-90deg);
 
     &::after {
-      border-top: 1px solid ${color.grey};
-      content: "";
+      border-top: 1px solid ${props => (props.theme.colorScheme === 'dark' ? 'transparent' : `${color.grey}`)};
+      content: '';
       display: block;
       position: relative;
       right: 12px;
@@ -98,7 +103,7 @@ export const StyledEnvironments = styled.div`
     }
 
     span {
-      background-color: ${color.white};
+      background: ${props => props.theme.backgrounds.boxLabel};
       padding: 0 16px;
       z-index: 0;
     }
@@ -112,10 +117,9 @@ export const StyledEnvironments = styled.div`
     text-transform: uppercase;
     top: 50%;
     transform: translateY(-50%) rotate(-90deg);
-
     &::after {
-      border-top: 1px solid ${color.grey};
-      content: "";
+      border-top: 1px solid ${props => (props.theme.colorScheme === 'dark' ? 'transparent' : `${color.grey}`)};
+      content: '';
       display: block;
       position: relative;
       right: 12px;
@@ -125,7 +129,7 @@ export const StyledEnvironments = styled.div`
     }
 
     span {
-      background-color: ${color.white};
+      background: ${props => props.theme.backgrounds.boxLabel};
       padding: 0 16px;
       z-index: 0;
     }
@@ -171,6 +175,9 @@ export const StyledEnvironments = styled.div`
       background-size: 40px 50px;
       min-height: 122px;
       padding: 10px 15px;
+    }
+    &.skeleton {
+      padding-bottom: 0;
     }
   }
 `;

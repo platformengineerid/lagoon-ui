@@ -1,5 +1,5 @@
-import styled from "styled-components";
-import { bp, color } from "lib/variables";
+import { bp, color } from 'lib/variables';
+import styled from 'styled-components';
 
 export const StyledProblems = styled.div`
   .header {
@@ -73,7 +73,7 @@ export const StyledProblems = styled.div`
 
   .button-sort {
     color: #5f6f7a;
-    font-family: "source-code-pro", sans-serif;
+    font-family: 'source-code-pro', sans-serif;
     font-size: 12px;
     font-size: 0.8125rem;
     line-height: 1.4;
@@ -90,11 +90,11 @@ export const StyledProblems = styled.div`
     }
 
     &.ascending:after {
-      content: " \\25B2";
+      content: ' \\25B2';
     }
 
     &.descending:after {
-      content: " \\25BC";
+      content: ' \\25BC';
     }
   }
 
@@ -104,7 +104,7 @@ export const StyledProblems = styled.div`
       justify-content: space-between;
       padding: 10px 20px;
       margin: 0 0 20px;
-      background: #f3f3f3;
+      background-color: ${props => props.theme.backgrounds.table};
 
       li.result {
         display: flex;
@@ -115,8 +115,8 @@ export const StyledProblems = styled.div`
   }
 
   .data-none {
-    border: 1px solid ${color.white};
-    border-bottom: 1px solid ${color.lightestGrey};
+    border: 1px solid ${props => props.theme.borders.tableRow};
+    border-bottom: 1px solid ${props => props.theme.borders.tableRow};
     border-radius: 3px;
     line-height: 1.5rem;
     padding: 8px 0 7px 0;

@@ -7,6 +7,8 @@ COPY server.js .
 COPY plugins.json .
 COPY package.json .
 COPY yarn.lock .
+COPY tour.json .
+COPY tourHash.js .
 
 # Upgrade the yarn version in /app to the most recent to take advantage of new features 
 RUN yarn set version berry \

@@ -58,6 +58,10 @@ const LagoonApp = ({ Component, pageProps, err }) => {
     };
   }, [events]);
 
+  useEffect(() => {
+    document.body.className = theme;
+  }, [theme]);
+
   // Catch runtime errors in production and skip authentication to avoid
   // infinite auth > error > auth > error loops.
   if (err) {

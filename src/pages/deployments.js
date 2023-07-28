@@ -17,8 +17,6 @@ import NavTabsSkeleton from 'components/NavTabs/NavTabsSkeleton';
 import ResultsLimited from 'components/ResultsLimited';
 import MainLayout from 'layouts/MainLayout';
 import EnvironmentWithDeploymentsQuery from 'lib/query/EnvironmentWithDeployments';
-import DeploymentsSubscription from 'lib/subscription/Deployments';
-
 import EnvironmentNotFound from '../components/errors/EnvironmentNotFound';
 import QueryError from '../components/errors/QueryError';
 import { DeploymentsWrapper } from '../styles/pageStyles';
@@ -46,7 +44,7 @@ const resultLimit = urlResultLimit === -1 ? null : urlResultLimit;
  */
 export const PageDeployments = ({ router }) => {
   const { continueTour } = useTourContext();
-  const { data, error, loading, subscribeToMore } = useQuery(EnvironmentWithDeploymentsQuery, {
+  const { data, error, loading } = useQuery(EnvironmentWithDeploymentsQuery, {
     variables: {
       openshiftProjectName: router.query.openshiftProjectName,
       limit: resultLimit,
@@ -110,39 +108,6 @@ export const PageDeployments = ({ router }) => {
       />
     );
   }
-
-  subscribeToMore({
-    document: DeploymentsSubscription,
-    variables: { environment: environment.id },
-    updateQuery: (prevStore, { subscriptionData }) => {
-      if (!subscriptionData.data) return prevStore;
-      const prevDeployments = prevStore.environment.deployments;
-      const incomingDeployment = subscriptionData.data.deploymentChanged;
-      const existingIndex = prevDeployments.findIndex(prevDeployment => prevDeployment.id === incomingDeployment.id);
-      let newDeployments;
-
-      // New deployment.
-      if (existingIndex === -1) {
-        newDeployments = [incomingDeployment, ...prevDeployments];
-      }
-      // Updated deployment
-      else {
-        newDeployments = Object.assign([...prevDeployments], {
-          [existingIndex]: incomingDeployment,
-        });
-      }
-
-      const newStore = {
-        ...prevStore,
-        environment: {
-          ...prevStore.environment,
-          deployments: newDeployments,
-        },
-      };
-
-      return newStore;
-    },
-  });
 
   return (
     <>

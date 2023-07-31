@@ -16,11 +16,11 @@ const ThemeToggler = () => {
   const { theme, toggleTheme } = useContext(AppContext) as unknown as AppContextType;
 
   return (
-    <StyledToggler onClick={toggleTheme}>
+    <StyledToggler onClick={toggleTheme} className="themeToggler">
       <Image
         alt="toggle"
-        height={28}
-        width={28}
+        height={35}
+        width={35}
         src={`${theme === 'dark' ? '/static/images/sun.svg' : '/static/images/moon.svg'}`}
       />
     </StyledToggler>

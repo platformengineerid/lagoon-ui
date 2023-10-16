@@ -1,6 +1,8 @@
 import React, { FC } from 'react';
 
+import CancelDeployment from 'components/CancelDeployment';
 import { getDeploymentDuration } from 'components/Deployment';
+import HoverTag from 'components/HoverTag';
 import BulkDeploymentLink from 'components/link/BulkDeployment';
 import DeploymentLink from 'components/link/Deployment';
 import moment from 'moment';
@@ -14,6 +16,7 @@ interface DeploymentsProps {
     bulkId: string;
     status: string;
     created: string;
+    buildStep?: string;
   }[];
   environmentSlug: string;
   projectSlug: string;
@@ -32,28 +35,42 @@ const Deployments: FC<DeploymentsProps> = ({ deployments, environmentSlug, proje
     <div className="data-table">
       {!deployments.length && <div className="data-none">No Deployments</div>}
       {deployments.map(deployment => (
-        <DeploymentLink
-          deploymentSlug={deployment.name}
-          environmentSlug={environmentSlug}
-          projectSlug={projectSlug}
-          key={deployment.id}
-        >
-          <div className="data-row" data-deployment={deployment.id}>
-            <div className="name">
-              {deployment.name}
-              {deployment.bulkId && (
-                <label className="bulk-label">
-                  <BulkDeploymentLink bulkIdSlug={deployment.bulkId}>bulk</BulkDeploymentLink>
-                </label>
-              )}
+        <div className="deploymentRow" key={deployment.id}>
+          <DeploymentLink
+            deploymentSlug={deployment.name}
+            environmentSlug={environmentSlug}
+            projectSlug={projectSlug}
+            key={deployment.id}
+          >
+            <div className="data-row" data-deployment={deployment.id}>
+              <div className="name">
+                {deployment.name}
+                {deployment.bulkId && (
+                  <label className="bulk-label">
+                    <BulkDeploymentLink bulkIdSlug={deployment.bulkId}>bulk</BulkDeploymentLink>
+                  </label>
+                )}
+              </div>
+              <div className="started">
+                {moment.utc(deployment.created).local().format('DD MMM YYYY, HH:mm:ss (Z)')}
+              </div>
+              <div className={`status ${deployment.status}`}>
+                {deployment.status.charAt(0).toUpperCase() + deployment.status.slice(1)}
+
+                {!['complete', 'cancelled', 'failed'].includes(deployment.status) && deployment.buildStep && (
+                  <HoverTag text={deployment.buildStep} maxWidth="160px" tooltipPosition="top" />
+                )}
+              </div>
+              <div className="duration">{getDeploymentDuration(deployment)} </div>
             </div>
-            <div className="started">{moment.utc(deployment.created).local().format('DD MMM YYYY, HH:mm:ss (Z)')}</div>
-            <div className={`status ${deployment.status}`}>
-              {deployment.status.charAt(0).toUpperCase() + deployment.status.slice(1)}
-            </div>
-            <div className="duration">{getDeploymentDuration(deployment)}</div>
+          </DeploymentLink>
+
+          <div className="cancel-button">
+            {['new', 'pending', 'queued', 'running'].includes(deployment.status) && (
+              <CancelDeployment deployment={deployment} afterText="Cancelled" beforeText="Cancel" />
+            )}
           </div>
-        </DeploymentLink>
+        </div>
       ))}
     </div>
   </StyledDeployments>

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Skeleton from 'react-loading-skeleton';
 
 import getConfig from 'next/config';
@@ -26,30 +26,38 @@ const { publicRuntimeConfig } = getConfig();
 const envLimit = parseInt(publicRuntimeConfig.LAGOON_UI_DEPLOYMENTS_LIMIT, 10);
 const customMessage = publicRuntimeConfig.LAGOON_UI_DEPLOYMENTS_LIMIT_MESSAGE;
 
-let urlResultLimit = envLimit;
-if (typeof window !== 'undefined') {
-  let search = window.location.search;
-  let params = new URLSearchParams(search);
-  let limit = params.get('limit');
-  if (limit) {
-    if (parseInt(limit.trim(), 10)) {
-      urlResultLimit = parseInt(limit.trim(), 10);
-    }
-  }
-}
-const resultLimit = urlResultLimit === -1 ? null : urlResultLimit;
-
 /**
  * Displays the deployments page, given the openshift project name.
  */
 export const PageDeployments = ({ router }) => {
   const { continueTour } = useTourContext();
-  const { data, error, loading } = useQuery(EnvironmentWithDeploymentsQuery, {
+
+  const [resultLimit, setResultLimit] = useState(null);
+
+  const { data, error, loading, refetch } = useQuery(EnvironmentWithDeploymentsQuery, {
     variables: {
       openshiftProjectName: router.query.openshiftProjectName,
       limit: resultLimit,
     },
   });
+
+  const handleRefetch = async () =>
+    await refetch({ openshiftProjectName: router.query.openshiftProjectName, limit: resultLimit });
+
+  useEffect(() => {
+    let urlResultLimit = envLimit;
+    if (typeof window !== 'undefined') {
+      let search = window.location.search;
+      let params = new URLSearchParams(search);
+      let limit = params.get('limit');
+      if (limit) {
+        if (parseInt(limit.trim(), 10)) {
+          urlResultLimit = parseInt(limit.trim(), 10);
+        }
+      }
+    }
+    setResultLimit(urlResultLimit === -1 ? null : urlResultLimit);
+  }, []);
 
   useEffect(() => {
     if (!loading && data?.environment) {
@@ -125,7 +133,7 @@ export const PageDeployments = ({ router }) => {
         <DeploymentsWrapper>
           <NavTabs activeTab="deployments" environment={environment} />
           <div className="content">
-            <DeployLatest pageEnvironment={environment} />
+            <DeployLatest pageEnvironment={environment} onDeploy={handleRefetch} />
             <Deployments
               deployments={environment.deployments}
               environmentSlug={environment.openshiftProjectName}
@@ -133,6 +141,7 @@ export const PageDeployments = ({ router }) => {
             />
             <ResultsLimited
               limit={resultLimit}
+              changeLimit={setResultLimit}
               results={environment.deployments.length}
               message={(!customMessage && '') || (customMessage && customMessage.replace(/['"]+/g, ''))}
             />

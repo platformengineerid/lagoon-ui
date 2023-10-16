@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Skeleton from 'react-loading-skeleton';
 
 import getConfig from 'next/config';
@@ -26,32 +26,40 @@ const { publicRuntimeConfig } = getConfig();
 const envLimit = parseInt(publicRuntimeConfig.LAGOON_UI_TASKS_LIMIT, 10);
 const customMessage = publicRuntimeConfig.AGOON_UI_TASKS_LIMIT_MESSAGE;
 
-let urlResultLimit = envLimit;
-if (typeof window !== 'undefined') {
-  let search = window.location.search;
-  let params = new URLSearchParams(search);
-  let limit = params.get('limit');
-  if (limit) {
-    if (parseInt(limit.trim(), 10)) {
-      urlResultLimit = parseInt(limit.trim(), 10);
-    }
-    if (limit == 'all') {
-      urlResultLimit = -1;
-    }
-  }
-}
-const resultLimit = urlResultLimit === -1 ? null : urlResultLimit;
 /**
  * Displays the tasks page, given the openshift project name.
  */
 export const PageTasks = ({ router, renderAddTasks }) => {
+  const [resultLimit, setResultLimit] = useState(null);
+
   const { continueTour } = useTourContext();
-  const { data, error, loading } = useQuery(EnvironmentWithTasksQuery, {
+  const { data, error, loading, refetch } = useQuery(EnvironmentWithTasksQuery, {
     variables: {
       openshiftProjectName: router.query.openshiftProjectName,
       limit: resultLimit,
     },
   });
+
+  const handleRefetch = async () =>
+    await refetch({ openshiftProjectName: router.query.openshiftProjectName, limit: resultLimit });
+
+  useEffect(() => {
+    let urlResultLimit = envLimit;
+    if (typeof window !== 'undefined') {
+      let search = window.location.search;
+      let params = new URLSearchParams(search);
+      let limit = params.get('limit');
+      if (limit) {
+        if (parseInt(limit.trim(), 10)) {
+          urlResultLimit = parseInt(limit.trim(), 10);
+        }
+        if (limit == 'all') {
+          urlResultLimit = -1;
+        }
+      }
+    }
+    setResultLimit(urlResultLimit === -1 ? null : urlResultLimit);
+  }, []);
 
   useEffect(() => {
     if (!loading && data?.environment?.tasks.length) {
@@ -72,27 +80,23 @@ export const PageTasks = ({ router, renderAddTasks }) => {
         </Head>
 
         <MainLayout>
-            <Breadcrumbs>
-              <ProjectBreadcrumb projectSlug={projectSlug} />
-              <EnvironmentBreadcrumb environmentSlug={openshiftProjectName} projectSlug={projectSlug} />
-            </Breadcrumbs>
-            <TasksWrapper>
-              <NavTabsSkeleton
-                activeTab="tasks"
-                projectName={projectSlug}
-                openshiftProjectName={openshiftProjectName}
+          <Breadcrumbs>
+            <ProjectBreadcrumb projectSlug={projectSlug} />
+            <EnvironmentBreadcrumb environmentSlug={openshiftProjectName} projectSlug={projectSlug} />
+          </Breadcrumbs>
+          <TasksWrapper>
+            <NavTabsSkeleton activeTab="tasks" projectName={projectSlug} openshiftProjectName={openshiftProjectName} />
+
+            <div className="content">
+              <Skeleton height={'60px'} />
+              <TasksSkeleton />
+
+              <ResultsLimited
+                limit={resultLimit}
+                message={(!customMessage && '') || (customMessage && customMessage.replace(/['"]+/g, ''))}
               />
-
-              <div className="content">
-                <Skeleton height={'60px'} />
-                <TasksSkeleton />
-
-                <ResultsLimited
-                  limit={resultLimit}
-                  message={(!customMessage && '') || (customMessage && customMessage.replace(/['"]+/g, ''))}
-                />
-              </div>
-            </TasksWrapper>
+            </div>
+          </TasksWrapper>
         </MainLayout>
       </>
     );
@@ -130,14 +134,17 @@ export const PageTasks = ({ router, renderAddTasks }) => {
         <TasksWrapper>
           <NavTabs activeTab="tasks" environment={environment} />
           <div className="content">
-            {!renderAddTasks && <AddTask pageEnvironment={environment} />}
+            {!renderAddTasks && <AddTask pageEnvironment={environment} onNewTask={handleRefetch} />}
             <Tasks
               tasks={environment.tasks}
+              environmentId={environment.id}
               environmentSlug={environment.openshiftProjectName}
               projectSlug={environment.project.name}
+              projectId={environment.project.id}
             />
             <ResultsLimited
               limit={resultLimit}
+              changeLimit={setResultLimit}
               results={environment.tasks.length}
               message={(!customMessage && '') || (customMessage && customMessage.replace(/['"]+/g, ''))}
             />

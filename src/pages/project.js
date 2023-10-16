@@ -1,39 +1,41 @@
-import React, { useEffect } from 'react';
-
-import Head from 'next/head';
-import { withRouter } from 'next/router';
-
-import { useQuery } from '@apollo/react-hooks';
-import Breadcrumbs from 'components/Breadcrumbs';
-import ProjectBreadcrumb from 'components/Breadcrumbs/Project';
-import Environments from 'components/Environments';
-import EnvironmentsSkeleton from 'components/Environments/EnvironmentsSkeleton';
-import ProjectDetailsSidebar from 'components/ProjectDetailsSidebar';
-import SidebarSkeleton from 'components/ProjectDetailsSidebar/SidebarSkeleton';
-import MainLayout from 'layouts/MainLayout';
-import ProjectByNameQuery from 'lib/query/ProjectByName';
-import * as R from 'ramda';
-
-import ProjectNotFound from '../components/errors/ProjectNotFound';
-import QueryError from '../components/errors/QueryError';
-import { ProjectDetailsWrapper } from '../styles/pageStyles';
-import { useTourContext } from '../tours/TourContext';
+import React, { useEffect } from "react";
+import * as R from "ramda";
+import { withRouter } from "next/router";
+import Head from "next/head";
+import MainLayout from "layouts/MainLayout";
+import ProjectByNameQuery from "lib/query/ProjectByName";
+import Breadcrumbs from "components/Breadcrumbs";
+import ProjectBreadcrumb from "components/Breadcrumbs/Project";
+import ProjectDetailsSidebar from "components/ProjectDetailsSidebar";
+import Environments from "components/Environments";
+import ProjectNavTabs from "components/ProjectNavTabs";
+import { ProjectDetailsWrapper, ProjectWrapper } from "../styles/pageStyles";
+import EnvironmentsSkeleton from "components/Environments/EnvironmentsSkeleton";
+import ProjectNavTabsSkeleton from "components/ProjectNavTabs/ProjectNavTabsSkeleton";
+import { useQuery } from "@apollo/react-hooks";
+import ProjectNotFound from "../components/errors/ProjectNotFound";
+import SidebarSkeleton from "components/ProjectDetailsSidebar/SidebarSkeleton";
+import QueryError from "../components/errors/QueryError";
+import { useTourContext } from "../tours/TourContext";
+import ThemedSkeletonWrapper from "../styles/ThemedSkeletonWrapper";
+import NewEnvironment from "../components/NewEnvironment";
 
 /**
  * Displays a project page, given the project name.
  */
 export const PageProject = ({ router }) => {
   const { continueTour } = useTourContext();
-  const { data, error, loading } = useQuery(ProjectByNameQuery, {
+  const { data, error, loading, refetch } = useQuery(ProjectByNameQuery, {
     variables: { name: router.query.projectName },
   });
+
+  const handleRefetch = async () => await refetch({ name: router.query.projectName });
 
   useEffect(() => {
     if (!loading) {
       continueTour();
     }
   }, [loading]);
-
   if (loading) {
     return (
       <>
@@ -44,15 +46,24 @@ export const PageProject = ({ router }) => {
           <Breadcrumbs>
             <ProjectBreadcrumb projectSlug={router.query.projectName} />
           </Breadcrumbs>
-          <ProjectDetailsWrapper>
-            <div className="project-details-sidebar">
-              <SidebarSkeleton />
-            </div>
-            <div className="environments-wrapper">
-              <h3>Environments</h3>
-              <EnvironmentsSkeleton />
-            </div>
-          </ProjectDetailsWrapper>
+          <ProjectWrapper>
+            <ThemedSkeletonWrapper>
+              <ProjectNavTabsSkeleton
+                activeTab="overview"
+                projectName={router.query.projectName}
+              />
+              <ProjectDetailsWrapper>
+                <div className="project-details-sidebar">
+                  <SidebarSkeleton />
+                </div>
+                <div className="environments-wrapper">
+                  <div className="environments-all">
+                    <EnvironmentsSkeleton />
+                  </div>
+                </div>
+              </ProjectDetailsWrapper>
+            </ThemedSkeletonWrapper>
+          </ProjectWrapper>
         </MainLayout>
       </>
     );
@@ -72,6 +83,7 @@ export const PageProject = ({ router }) => {
     [R.descend(R.prop('environmentType')), R.ascend(R.prop('deployType'))],
     project.environments
   );
+  const environmentCount = environments.length;
 
   return (
     <>
@@ -83,16 +95,24 @@ export const PageProject = ({ router }) => {
         <Breadcrumbs>
           <ProjectBreadcrumb projectSlug={project.name} />
         </Breadcrumbs>
-        <ProjectDetailsWrapper>
-          <div className="project-details-sidebar">
-            <ProjectDetailsSidebar project={project} />
-          </div>
-          <div className="environments-wrapper">
-            <h3>Environments</h3>
-            {!environments.length && <p>No Environments</p>}
-            <Environments environments={environments} project={project} />
-          </div>
-        </ProjectDetailsWrapper>
+        <ProjectWrapper>
+          <ProjectNavTabs activeTab="overview" project={project} />
+          <ProjectDetailsWrapper>
+            <div className="project-details-sidebar">
+              <ProjectDetailsSidebar project={project} />
+            </div>
+            <div className="environments-wrapper">
+              <div className="environments-all">
+                <Environments environments={environments} project={project} refresh={handleRefetch} environmentCount={environmentCount}/>
+                {
+                  environmentCount === 0 && (
+                    <NewEnvironment inputProjectName={project.name} productionEnvironment={project.productionEnvironment} refresh={handleRefetch} environmentCount={environmentCount} />
+                  )
+                }
+              </div>
+            </div>
+          </ProjectDetailsWrapper>
+        </ProjectWrapper>
       </MainLayout>
     </>
   );

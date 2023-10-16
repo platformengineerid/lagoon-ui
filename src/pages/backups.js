@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import getConfig from 'next/config';
 import Head from 'next/head';
@@ -25,23 +25,12 @@ const { publicRuntimeConfig } = getConfig();
 const envLimit = parseInt(publicRuntimeConfig.LAGOON_UI_BACKUPS_LIMIT, 10);
 const customMessage = publicRuntimeConfig.LAGOON_UI_BACKUPS_LIMIT_MESSAGE;
 
-let urlResultLimit = envLimit;
-if (typeof window !== 'undefined') {
-  let search = window.location.search;
-  let params = new URLSearchParams(search);
-  let limit = params.get('limit');
-  if (limit) {
-    if (parseInt(limit.trim(), 10)) {
-      urlResultLimit = parseInt(limit.trim(), 10);
-    }
-  }
-}
-const resultLimit = urlResultLimit === -1 ? null : urlResultLimit;
-
 /**
  * Displays the backups page, given the name of an openshift project.
  */
 export const PageBackups = ({ router }) => {
+  const [resultLimit, setResultLimit] = useState(null);
+
   const { continueTour } = useTourContext();
   const { data, error, loading } = useQuery(EnvironmentWithBackupsQuery, {
     variables: {
@@ -49,6 +38,21 @@ export const PageBackups = ({ router }) => {
       limit: resultLimit,
     },
   });
+
+  useEffect(() => {
+    let urlResultLimit = envLimit;
+    if (typeof window !== 'undefined') {
+      let search = window.location.search;
+      let params = new URLSearchParams(search);
+      let limit = params.get('limit');
+      if (limit) {
+        if (parseInt(limit.trim(), 10)) {
+          urlResultLimit = parseInt(limit.trim(), 10);
+        }
+      }
+    }
+    setResultLimit(urlResultLimit === -1 ? null : urlResultLimit);
+  }, []);
 
   useEffect(() => {
     if (!loading && data?.environment?.backups?.length) {
@@ -134,6 +138,7 @@ export const PageBackups = ({ router }) => {
             <Backups backups={environment.backups} />
             <ResultsLimited
               limit={resultLimit}
+              changeLimit={setResultLimit}
               results={environment.backups.length}
               message={(!customMessage && '') || (customMessage && customMessage.replace(/['"]+/g, ''))}
             />
